@@ -1,0 +1,586 @@
+Ldb4 API (Application Programming Interface)
+
+---------------------------------------------------------------------
+1. Greetings
+---------------------------------------------------------------------
+Alhamdulillah, all praises to Allah SWT.
+This is the 4th generation of Ldb that I ever created.
+After the 3rd is going slow and need patch in every gather the data,
+this one is faster, because spread into directories and files.
+
+Compare version to PHP version 5.3.7 and tested to version 5.5.2
+I also created this class and work at version 5.4.7
+The better result is 5.4.7
+The class will return die if it's not compared to the version.
+
+
+---------------------------------------------------------------------
+2. Index of contents
+---------------------------------------------------------------------
+ 1. Greetings
+ 2. Index of contents
+ 3. Calling the class
+ 4. Create a new database
+ 5. Connect into database
+ 6. Close the connection
+ 7. Show database
+ 8. Drop database
+ 9. Show tables
+10. Create a table
+11. Alter table
+12. Drop table
+13. Show columns
+14. Insert data
+15. Update data
+16. Delete data
+17. Create a database user
+18. Delete a database user
+19. Hash
+20. Default primary keys
+21. Default column values
+22. Select data
+23. Fetch data
+24. Errors
+25. Status, Access and Version
+26. Rows count, process time and error selected data
+27. Table Rows
+28. Info
+29. Closing
+
+---------------------------------------------------------------------
+3. Calling the class
+---------------------------------------------------------------------
+Require: 
++ Ldb4 class file
+
+Optional: 
++ custom directory - @string - scanned by regEx pattern \w+
++ portable - @bool - default: false
+
+$ldb = new Ldb4();
+
+Output: Ldb4Class object
+
+Or you can configure the directory of database by using parameter:
+
+$db_directory = '_database4';
+$ldb = new Ldb4($db_directory,true); // true for portable directory
+
+The effect of this step is it has its own database directory,
+Default: _Ldb4/
+
+---------------------------------------------------------------------
+4. Create a new database
+---------------------------------------------------------------------
+Require: 
++ database name - @string - scanned by regEx pattern \w+
++ database username - @string - alphanumeric only
++ database password  - @string- not null but it may be empty
+
+Sample:
+
+$db_name = 'my_db';
+$db_user = 'root';
+$db_pass = '';
+$ldb->create_db($db_name,$db_user,$db_pass);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+5. Connect into database
+---------------------------------------------------------------------
+Require: 
++ database name - @string
++ database username - @string
++ database password - @string
+
+Sample:
+
+$db_name = 'my_db';
+$db_user = 'root';
+$db_pass = '';
+$ldb->connect($db_name,$db_user,$db_pass);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+6. Close the connection
+---------------------------------------------------------------------
+Require: 
++ Connection
+
+Sample:
+
+$ldb->close();
+
+Output: always true
+
+---------------------------------------------------------------------
+7. Show database
+---------------------------------------------------------------------
+Require: 
++ Connection
+
+Sample:
+
+$ldb->show_database();
+
+Output: array of database
+
+---------------------------------------------------------------------
+8. Drop database
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Database name - @string
+
+Sample:
+
+$db_name = 'my_db';
+$ldb->drop_database($db_name);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+9. Show tables
+---------------------------------------------------------------------
+Require: 
++ Connection
+
+Sample: 
+
+$ldb->show_tables();
+
+Output: array of the current connected database
+
+---------------------------------------------------------------------
+10. Create a table
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
++ Column - @array - key as column name and value as default value
++ Primary key - @default - AID, CID, PID or TIMESTAMP
+
+Optional:
++ Options - @array - not available yet for this revision
+
+Sample: 
+
+$table_name = 'table_data';
+$column = array(
+  'id'=>'AID', // Auto Increasement Data
+  'title'=>'',
+  'content'=>'',
+  'time'=>'DATETIME', // See the section #21. Default column values
+);
+$primary_key = 'AID';
+$options = array(); // temporarily not available
+
+$ldb->create_table($table_name,$column,$primary_key,$options);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+11. Alter table
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
++ Column - @array - key as column name and value as default value
+
+Optional:
++ Primary key - @default - (if you wanna change the primary key)
+
+Sample: 
+
+$table_name = 'table_data';
+$new_column = array(
+  'id'=>'AID',
+  'title'=>'',
+  'content'=>'',
+  'cid'=>'CID',
+);
+$primary_key = 'CID';
+$ldb->alter_table($table_name,$new_column,$primary_key);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+12. Drop table
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
+
+Sample: 
+
+$table_name = 'table_data';
+$ldb->drop_table($table_name);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+13. Show columns
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
+
+Sample:
+
+$table_name = 'table_data';
+$ldb->show_columns($table_name);
+
+
+---------------------------------------------------------------------
+14. Insert data
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
++ Data - @array - keys are according to column name of the table
+
+Sample: 
+
+$table_name = 'table_data';
+$data = array(
+  'title'=>'Test title',
+  'content'=>'Test content as it is',
+);
+$ldb->insert($table_name,$data);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+15. Update data
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
++ Location - @query - location query the same as url query
++ Data - @array
+
+Sample: 
+
+$table_name = 'table_data';
+$location = 'id=1'; // single location
+$data = array(
+  'content'=>'Test content as it is',
+);
+$ldb->update($table_name,$location,$data);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+16. Delete data
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
++ Location - @query - location query the same as url query
+
+Sample: 
+
+$table_name = 'table_data';
+$location = 'id=1'; // single location
+$ldb->update($table_name,$location);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+17. Create a database user
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Database username - @string - alphanumeric only
++ Database password - @string - not null but might be empty
+
+Sample: 
+
+$db_user = 'user4';
+$db_pass = '^mypass$';
+$ldb->create_user($db_user,$db_pass);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+18. Delete a database user
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Database username - @string - existed user
+
+Sample: 
+$db_user = 'user4';
+$ldb->delete_user($db_user);
+
+Output: bool (true/false)
+
+---------------------------------------------------------------------
+19. Hash
+---------------------------------------------------------------------
+Require: 
++ None
+
+Optional:
++ Content - @string
++ Algorithm number - @algorithm - Default by 5
++ Raw output - @bool - true or false
+
+Sample: 
+
+$string = 'mypassword';
+$ldb->hash($string);
+
+Output: string of algorithm encryption
+
+---------------------------------------------------------------------
+20. Default primary keys
+---------------------------------------------------------------------
+Require: 
++ None
+
+Sample: 
+$ldb->default_primary_keys();
+
+Output: array of default primary keys: AID, CID, PID and TIMESTAMP
+
+---------------------------------------------------------------------
+21. Default column values
+---------------------------------------------------------------------
+Require: 
++ None
+
+Sample: 
+
+$ldb->default_column_values();
+
+Output: array of default column values;
+
+Definition:
++ AID - Auto increasement data - numeric
++ CID - Code increasement data - hexa-decimal
++ PID - Primary increasement data - numeric float 9 or more
++ DATE - Date format: d-m-Y
++ TIME - Date format: H:i:s
++ DATETIME - Date format: d-m-Y H:i:s
++ TIMESTAMP - Timestamp from function time
+
+---------------------------------------------------------------------
+22. Select data
+---------------------------------------------------------------------
+Require: 
++ Connection
++ Table name - @string
+
+Optional:
++ Location - @query - location query like url query
++ Option - @query - url query
+
+---------
+Sample #1: 
+
+/* select data in the table */
+/* if location set to null, it will generate all data
+ * if no limit query in option parameter, it will set to default
+ * limit=10&start=0 (default option parameter)
+ */
+$table_name = 'table_data';
+$ldb->select($table_name);
+
+Output #1: Ldb4_data Object
+
+---------
+Sample #2: 
+/*** THIS IS THE FASTEST WAY TO SELECT ***/
+/* if the location directed to the primary key,
+ * it will be creating a single data,
+ * and ignore any option parameter
+ */
+$table_name = 'table_data';
+$ldb->select($table_name,'id=1');
+
+Output #2: Ldb4_data Object
+
+---------
+Sample #3: 
+/* if location parameter set to null, while using option query
+ * it will generate as it is
+ * valid option query:
+ * + @start: default 0; (numeric)
+ * + @limit: default 10; (numeric)
+ * + @sort: default none; (asc/desc)
+ * + @order: default [primary key]; (temporarily not avaiable)
+ * + @key: default [primary key]; (temporarily not available)
+ */
+$table_name = 'table_data';
+$ldb->select($table_name,null,'start=0&limit=2&sort=desc');
+
+Output #3: Ldb4_data Object
+
+---------
+Sample #4: 
+/* combination query;
+ * between location query and option query
+ */
+$table_name = 'table_data';
+$db->select($table_name,'title=Test title&time=23-12-2014 20:35:14','start=0&limit=2&sort=desc');
+
+Output #4: Ldb4_data Object
+
+
+---------------------------------------------------------------------
+23. Fetch data
+---------------------------------------------------------------------
+Require: 
++ Ldb4_data Object
+
+Sample: 
+
+$table_name = 'table_data';
+$select = $db->select($table_name); // .. Ldb4_data Object
+while($row = $select->fetch_array()){
+  print_r($row);
+}
+
+Output: array of Ldb4 data
+
+---------------------------------------------------------------------
+24. Errors
+---------------------------------------------------------------------
+Require: none
+
+Sample: 
+
+$db->error;  // get the last error
+
+Output: string of the last error
+
+Sample: 
+
+$db->errors; // get error in array
+
+Output: array of errors
+
+---------------------------------------------------------------------
+25. Status, Access and Version
+---------------------------------------------------------------------
+Require: none
+
+This is the way to know the connection status
+
+Sample: 
+
+$db->status;
+
+Output: string of connection status
+
+Sample: 
+
+$db->access;
+
+Output: string of access given
+
+Sample:
+
+$db->version;
+
+Output: string of Ldb version
+
+---------------------------------------------------------------------
+26. Rows count, process time and error selected data
+---------------------------------------------------------------------
+Require: 
++ Ldb4_data Object
+
+Sample: 
+
+$table_name = 'table_data';
+$select = $db->select($table_name); // .. Ldb4_data Object
+
+// to show process time (in micro time) or float 3 number
+if(!select->error){
+  echo $select->process_time; 
+}
+
+Output: float of number
+
+Sample: 
+
+// to show selected rows
+if(!select->error){
+  echo $select->rows;
+}
+
+Output: integer of rows
+
+Sample: 
+
+// to show the selected error
+if(!select->error){
+  echo $select->error;
+}
+
+Output: string of error information
+
+---------------------------------------------------------------------
+27. Table rows
+---------------------------------------------------------------------
+Require: 
++ Ldb4_data Object
+
+Sample: 
+
+$table_name = 'my_table';
+$select = $db->select($table_name); // .. Ldb4_data Object
+
+// to show to table rows
+if(!select->error){ // handler
+  echo $select->table_rows; 
+}
+
+Output: integer of table rows
+
+---------------------------------------------------------------------
+28. Info
+---------------------------------------------------------------------
+Require: 
++ Ldb4 Object
+
+Optional: 
++ array output - @bool - default: false
+
+Sample: 
+
+$info = $db->info();
+
+Output: object of info of the class
+
+Sample #2: 
+
+$info = $db->info(true);
+
+Output: array of info of the class
+
+---------------------------------------------------------------------
+29. Closing
+---------------------------------------------------------------------
+There they go, I gave you everything I know about Ldb4 API,
+but I wish you can a credit to Allah SWT, who helped me to finish 
+this class, and support me in any other side that I never thought.
+
+Tuesday, December 23rd 2014
+Regards,
+
+--Luthfie
+
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+
+Copyright 2014, Luthfie
+
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+---------------------------------------------------------------------
